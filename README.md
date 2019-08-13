@@ -1,16 +1,7 @@
-# water_tracker_flare
+# Flare sample - Water Tracker app
 
-A new Flutter application.
+A simple app containing Flare animations
 
-## Getting Started
+# Demo
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![water-tracker-flare](https://user-images.githubusercontent.com/14852938/62981543-d89d2c00-bdff-11e9-97c4-29e5f5a49043.gif)
