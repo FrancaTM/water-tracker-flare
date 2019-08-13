@@ -27,12 +27,64 @@ class AnimationControls extends FlareController {
   double _smoothTime = 5;
 
   @override
-  void initialize(FlutterActorArtboard artboard) {}
+  void initialize(FlutterActorArtboard artboard) {
+    //get the reference here on start to our animations and artboard
+    _artboard = artboard;
+    _fillAnimation = artboard.getAnimation("water up");
+    _iceboyMoveY = artboard.getAnimation("iceboy_move_up");
+  }
 
   void setViewTransform(Mat2D viewTransform) {}
 
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
-    return null;
+    //we need this separate from our generic mixing animations,
+    // b/c the animation duration is needed in this calculation
+    if (artboard.name.compareTo("Artboard") == 0) {
+      _currentWaterFill +=
+          (_waterFill - _currentWaterFill) * min(1, elapsed * _smoothTime);
+      _fillAnimation.apply(
+          _currentWaterFill * _fillAnimation.duration, artboard, 1);
+      _iceboyMoveY.apply(
+          _currentWaterFill * _iceboyMoveY.duration, artboard, 1);
+    }
+
+    int len = _baseAnimaitons.length - 1;
+
+    for (int i = len; i >= 0; i--) {
+      FlareAnimationLayer layer = _baseAnimaitons[i];
+      layer.time += elapsed;
+      layer.mix = min(1.0, layer.time / 0.01);
+      layer.apply(_artboard);
+
+      if (layer.isDone) {
+        _baseAnimaitons.removeAt(i);
+      }
+    }
+
+    return true;
+  }
+
+  ///called from the 'tracking_input'
+  void playAnimation(String animName) {
+    ActorAnimation animation = _artboard.getAnimation(animName);
+
+    if (animation != null) {
+      _baseAnimaitons.add(FlareAnimationLayer()
+        ..name = animName
+        ..animation = animation);
+    }
+  }
+
+  ///called from the 'tracking_input'
+  ///updates the water fill line
+  void updateWaterPercent(double amt) {
+    _waterFill = amt;
+  }
+
+  ///called from the 'tracking_input'
+  ///resets the water fill line
+  void resetWater() {
+    _waterFill = 0;
   }
 }
