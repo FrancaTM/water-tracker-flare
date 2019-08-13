@@ -15,7 +15,7 @@ class AnimationControls extends FlareController {
   ActorAnimation _iceboyMoveY;
 
   ///used for mixing animations
-  final List<FlareAnimationLayer> _baseAnimaitons = [];
+  final List<FlareAnimationLayer> _baseAnimations = [];
 
   ///our overall fill
   double _waterFill = 0.00;
@@ -29,9 +29,11 @@ class AnimationControls extends FlareController {
   @override
   void initialize(FlutterActorArtboard artboard) {
     //get the reference here on start to our animations and artboard
-    _artboard = artboard;
-    _fillAnimation = artboard.getAnimation("water up");
-    _iceboyMoveY = artboard.getAnimation("iceboy_move_up");
+    if (artboard.name.compareTo("Artboard") == 0) {
+      _artboard = artboard;
+      _fillAnimation = artboard.getAnimation("water up");
+      _iceboyMoveY = artboard.getAnimation("iceboy_move_up");
+    }
   }
 
   void setViewTransform(Mat2D viewTransform) {}
@@ -49,16 +51,16 @@ class AnimationControls extends FlareController {
           _currentWaterFill * _iceboyMoveY.duration, artboard, 1);
     }
 
-    int len = _baseAnimaitons.length - 1;
+    int len = _baseAnimations.length - 1;
 
     for (int i = len; i >= 0; i--) {
-      FlareAnimationLayer layer = _baseAnimaitons[i];
+      FlareAnimationLayer layer = _baseAnimations[i];
       layer.time += elapsed;
       layer.mix = min(1.0, layer.time / 0.01);
       layer.apply(_artboard);
 
       if (layer.isDone) {
-        _baseAnimaitons.removeAt(i);
+        _baseAnimations.removeAt(i);
       }
     }
 
@@ -70,7 +72,7 @@ class AnimationControls extends FlareController {
     ActorAnimation animation = _artboard.getAnimation(animName);
 
     if (animation != null) {
-      _baseAnimaitons.add(FlareAnimationLayer()
+      _baseAnimations.add(FlareAnimationLayer()
         ..name = animName
         ..animation = animation);
     }

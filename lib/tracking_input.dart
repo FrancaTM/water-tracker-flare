@@ -107,6 +107,212 @@ class _TrackingInputState extends State<TrackingInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      backgroundColor: const Color.fromRGBO(93, 93, 93, 1),
+      body: Container(
+        ///Stack some widgets
+        color: const Color.fromRGBO(93, 93, 93, 1),
+        child: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            ///this is our main artboard with iceboy and the water fill
+            FlareActor(
+              "assets/WaterArtboards.flr",
+              controller: _flareController,
+              fit: BoxFit.contain,
+              animation: "iceboy",
+              artboard: "Artboard",
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Spacer(),
+
+                ///Each widget on the main view
+                addWaterBtn(),
+                subWaterBtn(),
+                settingsBtn(),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ///set up our bottom sheet menu
+  ///will be visible when the ellipses button is pressed
+  void _showMenu() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter updateModal) {
+            return Container(
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(93, 93, 93, 1),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    'Set Target',
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white,
+                      fontSize: 24.0,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  // Some vertical padding between text and buttons row
+                  const SizedBox(height: 20),
+                  Row(
+                    children: <Widget>[
+                      ///our animated button that increases your goal
+                      FlareWaterTrackButton(
+                        artboard: "UI arrow left",
+                        pressAnimation: "arrow left press",
+                        onPressed: () => _incSelectedGlasses(updateModal, -1),
+                      ),
+                      Expanded(
+                        child: Text(
+                          selectedGlasses.toString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.white,
+                            fontSize: 40.0,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+
+                      ///our animated button that decreases your goal
+                      FlareWaterTrackButton(
+                        artboard: "UI arrow right",
+                        pressAnimation: "arrow right press",
+                        onPressed: () => _incSelectedGlasses(updateModal, 1),
+                      ),
+                    ],
+                  ),
+
+                  // Some vertical padding between text and buttons row
+                  const SizedBox(height: 20),
+                  Text(
+                    "/glasses",
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white,
+                        fontSize: 20.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  // Some vertical padding between text and buttons row
+                  const SizedBox(height: 20),
+
+                  ///our Flare button that closes our menu
+                  FlareWaterTrackButton(
+                    artboard: "UI refresh",
+                    onPressed: () {
+                      _resetDay();
+                      // close modal
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget settingsBtn() {
+    return RawMaterialButton(
+      onPressed: _showMenu,
+      constraints: BoxConstraints.tight(Size(95, 30)),
+      shape: Border(),
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      elevation: 0.0,
+      child: FlareActor(
+        "assets/WaterArtboards.flr",
+        fit: BoxFit.contain,
+        sizeFromArtboard: true,
+        artboard: "UI Ellipse",
+      ),
+    );
+  }
+
+  Widget addWaterBtn() {
+    return RawMaterialButton(
+      onPressed: _incrementWater,
+      constraints: BoxConstraints.tight(const Size(150, 150)),
+      shape: Border(),
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      elevation: 0.0,
+      child: FlareActor("assets/WaterArtboards.flr",
+          controller: plusWaterControls,
+          fit: BoxFit.contain,
+          animation: "plus press",
+          sizeFromArtboard: false,
+          artboard: "UI plus"),
+    );
+  }
+
+  Widget subWaterBtn() {
+    return RawMaterialButton(
+      onPressed: _decrementWater,
+      constraints: BoxConstraints.tight(const Size(150, 150)),
+      shape: Border(),
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      elevation: 0.0,
+      child: FlareActor("assets/WaterArtboards.flr",
+          controller: minusWaterControls,
+          fit: BoxFit.contain,
+          animation: "minus press",
+          sizeFromArtboard: true,
+          artboard: "UI minus"),
+    );
+  }
+}
+
+/// Button with a Flare widget that automatically plays
+/// a Flare animation when pressed. Specify which animation
+/// via [pressAnimation] and the [artboard] it's in.
+class FlareWaterTrackButton extends StatefulWidget {
+  final String pressAnimation;
+  final String artboard;
+  final VoidCallback onPressed;
+
+  const FlareWaterTrackButton(
+      {this.artboard, this.pressAnimation, this.onPressed});
+
+  @override
+  _FlareWaterTrackButtonState createState() => _FlareWaterTrackButtonState();
+}
+
+class _FlareWaterTrackButtonState extends State<FlareWaterTrackButton> {
+  final _controller = FlareControls();
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      constraints: BoxConstraints.tight(const Size(95, 85)),
+      onPressed: () {
+        _controller.play(widget.pressAnimation);
+        widget.onPressed?.call();
+      },
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      child: FlareActor("assets/WaterArtboards.flr",
+          controller: _controller,
+          fit: BoxFit.contain,
+          artboard: widget.artboard),
+    );
   }
 }
